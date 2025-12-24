@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.IoC;
@@ -22,7 +22,7 @@ internal class DalamudInterface {
     [PluginService] public IGameGui GameGui { get; set; } = null!;
     [PluginService] public IGameInteropProvider GameInteropProvider { get; set; } = null!;
     [PluginService] public ISeStringEvaluator SeStringEvaluator { get; set; } = null!;
-
+    [PluginService] public ISigScanner SigScanner { get; set; } = null!;
     public string GetAssetDirectoryPath()
         => Path.Combine(PluginInterface.AssemblyLocation.DirectoryName ?? throw new Exception("Directory from Dalamud is Invalid Somehow"), "Assets");
     

@@ -1,8 +1,14 @@
-﻿using FFXIVClientStructs.FFXIV.Component.GUI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace KamiToolKit.Nodes;
 
-public unsafe class CollisionNode() : NodeBase<AtkCollisionNode>(NodeType.Collision) {
+public unsafe class CollisionNode : NodeBase<AtkCollisionNode> {
+    public CollisionNode() : base(NodeType.Collision) {
+    }
+
+    public CollisionNode(AtkCollisionNode* collisionNode) : base(collisionNode) {
+    }
+
     public virtual CollisionType CollisionType {
         get => Node->CollisionType;
         set => Node->CollisionType = value;

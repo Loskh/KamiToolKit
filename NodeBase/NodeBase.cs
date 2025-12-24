@@ -166,6 +166,14 @@ public abstract unsafe class NodeBase<T> : NodeBase where T : unmanaged, ICreata
         CreatedNodes.Add(this);
     }
 
+    protected NodeBase(T* resNode) {
+        Node = resNode;
+        Log.Debug($"{(nint)ResNode:X}");
+        IsVisible = true;
+        BuildVirtualTable();
+        CreatedNodes.Add(this);
+    }
+
     public T* Node { get; private set; }
 
     internal sealed override AtkResNode* ResNode => (AtkResNode*)Node;
