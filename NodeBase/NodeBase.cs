@@ -65,7 +65,6 @@ public abstract unsafe partial class NodeBase : IDisposable {
         if (leakedNodeCount is not 0) {
             Log.Warning($"There were {leakedNodeCount} node(s) that were not disposed safely.");
         }
-
         foreach (var node in CreatedNodes.ToArray()) {
             if (node.ResNode is null) continue;
             if (node.ResNode->ParentNode is not null) continue;
@@ -171,6 +170,22 @@ public abstract unsafe class NodeBase<T> : NodeBase where T : unmanaged, ICreata
         Log.Debug($"{(nint)ResNode:X}");
         IsVisible = true;
         BuildVirtualTable();
+        CreatedNodes.Add(this);
+    }
+    protected NodeBase(NodeType nodeType, bool buildVirtualTable) {
+        if (MainThreadSafety.TryAssertMainThread()) return;
+
+        Log.Verbose($"Creating new node {GetType()}");
+        Node = NativeMemoryHelper.Create<T>();
+        if (ResNode is null) {
+            throw new Exception($"Unable to allocate memory for {typeof(T)}");
+        }
+        IsVisible = true;
+        if (buildVirtualTable)
+            BuildVirtualTable();
+        ResNode->Type = nodeType;
+        ResNode->NodeId = NodeIdBase + CurrentOffset++;
+        IsVisible = true;
         CreatedNodes.Add(this);
     }
 

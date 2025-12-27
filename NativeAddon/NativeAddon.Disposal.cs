@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using KamiToolKit.Classes;
 
@@ -16,7 +16,7 @@ public abstract partial class NativeAddon : IDisposable {
             // until Dalamud can implement OverlayAddons globally.
             CreatedAddons.Remove(this);
             GC.SuppressFinalize(this);
-            return;
+            //return;
         }
         
         if (!isDisposed) {

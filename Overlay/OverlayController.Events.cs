@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -51,6 +51,13 @@ public unsafe partial class OverlayController {
         IsOverlayAddon = true,
     };
 
+    private static OverlayAddon CreateOverlayAddon(string title,string internalName,int depth ) => new() {
+        Title = title,
+        InternalName = internalName,
+        DepthLayer = depth,
+        IsOverlayAddon = true,
+    };
+
     private void OnOverlayAddonSetup(AddonEvent type, AddonArgs args) {
         var addon = (AtkUnitBase*)args.Addon.Address;
         var overlayLayer = addon->DepthLayer.GetOverlayLayer();
@@ -65,7 +72,7 @@ public unsafe partial class OverlayController {
 
         if (overlayNodes.TryGetValue(overlayLayer, out var list)) {
             foreach (var node in list) {
-                node.Update();
+                node.Update(type, args);
             }
         }
     }

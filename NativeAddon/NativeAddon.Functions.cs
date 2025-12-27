@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using KamiToolKit.Classes;
@@ -16,7 +16,7 @@ public abstract unsafe partial class NativeAddon {
     protected virtual void OnRequestedUpdate(AtkUnitBase* addon, NumberArrayData** numberArrayData, StringArrayData** stringArrayData) { }
     protected virtual void OnRefresh(AtkUnitBase* addon, Span<AtkValue> atkValues) { }
 
-    private bool isSetup;
+    public bool isSetup { get; private set;}
 
     private void Initialize(AtkUnitBase* thisPtr) {
         Log.Verbose($"[{InternalName}] Initialize");
@@ -96,26 +96,22 @@ public abstract unsafe partial class NativeAddon {
         if (RememberClosePosition) {
             LastClosePosition = new Vector2(InternalAddon->X, InternalAddon->Y);
         }
-
         AtkUnitBase.StaticVirtualTablePointer->Finalizer(InternalAddon);
         isSetup = false;
     }
 
     private AtkEventListener* Destructor(AtkUnitBase* addon, byte flags) {
-        Log.Verbose($"[{InternalName}] Destructor");
-
+        Log.Verbose($"[{InternalName}] Destructor,flag: {flags}");
         var result = AtkUnitBase.StaticVirtualTablePointer->Dtor(addon, flags);
-
         if ((flags & 1) == 1) {
             InternalAddon = null;
             disposeHandle?.Free();
             disposeHandle = null;
             CreatedAddons.Remove(this);
-
             // Free our custom virtual table, the game doesn't know this exists and won't clear it on its own.
             NativeMemoryHelper.Free(virtualTable, 0x8 * VirtualTableEntryCount);
         }
-
+        this.isDisposed = true;
         return result;
     }
 

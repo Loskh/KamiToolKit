@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.Addon.Lifecycle;
@@ -15,12 +15,14 @@ public unsafe partial class OverlayController : IDisposable {
     private readonly Dictionary<OverlayLayer, Pointer<AtkUnitBase>> overlayAddons = [];
 
     private bool overlaysActive;
+    private string attachedAddonName;
     
-    public OverlayController() {
-        DalamudInterface.Instance.AddonLifecycle.RegisterListener(AddonEvent.PostSetup, "NamePlate", (_,_) => AddOverlays());
-        DalamudInterface.Instance.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "NamePlate",  (_,_) => RemoveOverlays());
+    public OverlayController(string attachedAddon) {
+        this.attachedAddonName = attachedAddon;
+        DalamudInterface.Instance.AddonLifecycle.RegisterListener(AddonEvent.PostSetup, attachedAddon, (_,_) => AddOverlays());
+        DalamudInterface.Instance.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, attachedAddon,  (_,_) => RemoveOverlays());
         
-        var addon = RaptureAtkUnitManager.Instance()->GetAddonByName("NamePlate");
+        var addon = RaptureAtkUnitManager.Instance()->GetAddonByName(attachedAddon);
         if (addon is not null) {
             AddOverlays();
         }
@@ -55,8 +57,8 @@ public unsafe partial class OverlayController : IDisposable {
     public void Dispose() {
         overlaysActive = false;
 
-        DalamudInterface.Instance.AddonLifecycle.UnregisterListener(AddonEvent.PostSetup, "NamePlate");
-        DalamudInterface.Instance.AddonLifecycle.UnregisterListener(AddonEvent.PreFinalize, "NamePlate");
+        DalamudInterface.Instance.AddonLifecycle.UnregisterListener(AddonEvent.PostSetup, this.attachedAddonName);
+        DalamudInterface.Instance.AddonLifecycle.UnregisterListener(AddonEvent.PreFinalize, this.attachedAddonName);
         DalamudInterface.Instance.AddonLifecycle.UnregisterListener(OnOverlayAddonFinalize, OnOverlayAddonSetup, OnOverlayAddonUpdate);
 
         foreach (var node in overlayNodes.SelectMany(nodeList => nodeList.Value)) {

@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace KamiToolKit.Nodes;
 
-public abstract unsafe class ComponentNode(NodeType nodeType) : NodeBase<AtkComponentNode>(nodeType) {
+public abstract unsafe class ComponentNode(NodeType nodeType,bool buildVirtualTable=true) : NodeBase<AtkComponentNode>(nodeType,buildVirtualTable) {
     public abstract AtkComponentBase* ComponentBase { get; }
     public abstract AtkUldComponentDataBase* DataBase { get; }
     public abstract AtkComponentNode* InternalComponentNode { get; }
@@ -73,7 +73,7 @@ public abstract unsafe class ComponentNode<T, TU> : ComponentNode where T : unma
         uldManager.ResourceFlags = AtkUldManagerResourceFlag.Initialized | AtkUldManagerResourceFlag.ArraysAllocated;
         uldManager.LoadedState = AtkLoadState.Loaded;
     }
-    protected ComponentNode(string uldPath, uint componentId, ComponentType componentType, uint collisionNodeId) : base(NodeType.Component) {
+    protected ComponentNode(string uldPath, uint componentId, ComponentType componentType, uint collisionNodeId) : base(NodeType.Component,false) {
         Log.Debug($"Building ComponentNode:{uldPath} {componentId} {componentType}");
         var uldManager = UldGenerator.GetUldManager(uldPath);
         InternalComponentNode->AtkResNode.Ctor();
@@ -94,7 +94,7 @@ public abstract unsafe class ComponentNode<T, TU> : ComponentNode where T : unma
         tinelineNum[0] = 223;
         ComponentNodeFunction.BuildComponent((AtkUldManager*)Unsafe.AsPointer(ref componentBase->UldManager), (nint)componentResourcePtr, componentId, tinelineNum, uldManager->Assets, uldManager->PartsList, uldManager->AssetCount, uldManager->PartsListCount, uldManager->ResourceRendererManager, true, true);
         ComponentNodeFunction.BuildComponentTimeline((AtkUldManager*)Unsafe.AsPointer(ref componentBase->UldManager), (nint)componentResourcePtr, componentId, uldManager->TimelineManager, (AtkResNode*)InternalComponentNode);
-
+        BuildVirtualTable();
         CollisionNode = new CollisionNode(componentBase->UldManager.SearchNodeById(collisionNodeId)->GetAsAtkCollisionNode());
         CollisionNode.ResNode->ParentNode = ResNode;
         CollisionNode.ParentUldManager = &((AtkComponentBase*)Component)->UldManager;
@@ -102,7 +102,6 @@ public abstract unsafe class ComponentNode<T, TU> : ComponentNode where T : unma
         CollisionNode.NodeFlags = NodeFlags.Visible | NodeFlags.Enabled | NodeFlags.HasCollision |
                         NodeFlags.RespondToMouse | NodeFlags.Focusable | NodeFlags.EmitsEvents | NodeFlags.Fill;
         uldManager->InitializeResourceRendererManager();
-
         uldManager->UpdateDrawNodeList();
         uldManager->ResourceFlags = AtkUldManagerResourceFlag.Initialized | AtkUldManagerResourceFlag.ArraysAllocated;
         uldManager->LoadedState = AtkLoadState.Loaded;

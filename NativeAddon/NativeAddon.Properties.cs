@@ -54,5 +54,5 @@ public abstract unsafe partial class NativeAddon {
 
     public static implicit operator AtkUnitBase*(NativeAddon addon) => addon.InternalAddon;
 
-    internal bool IsOverlayAddon { get; init; }
+    public bool IsOverlayAddon { get; init; } = false;
 }

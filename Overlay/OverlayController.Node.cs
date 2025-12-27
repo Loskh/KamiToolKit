@@ -1,4 +1,6 @@
-﻿using FFXIVClientStructs.FFXIV.Client.UI;
+using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using KamiToolKit.Classes;
 using KamiToolKit.Nodes;
 
@@ -16,7 +18,7 @@ public abstract unsafe class OverlayNode : SimpleOverlayNode {
     private bool preAutoHideState;
     private bool? lastNamePlateVisible;
 
-    public virtual void Update() {
+    public virtual void Update(AddonEvent type, AddonArgs args) {
         UpdateAutoHide();
     }
 

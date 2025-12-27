@@ -169,6 +169,8 @@ public abstract unsafe partial class NativeAddon {
             Log.Verbose($"[{InternalName}] Close");
 
             if (InternalAddon is not null) {
+                if (IsOverlayAddon)
+                    this.Hide(InternalAddon, false, false, 0);
                 InternalAddon->Close(false);
             }
         });
